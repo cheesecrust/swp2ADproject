@@ -11,6 +11,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
 
+        self.slave = 0
         self.setGeometry(550, 200, 1000, 700)
         self.setWindowTitle("12 LongTime")
 
@@ -242,7 +243,7 @@ class MainWindow(QMainWindow):
         self.currentPosition = [0,0]
         self.location = [0,0]
 
-    def reMake(self):
+    def reMake(self, end):
         self.turn = 2 ** ((self.turn - 1) % 2)
         self.A_button.setText(makeMap.gameMap[0][0])
         self.B_button.setText(makeMap.gameMap[0][1])
@@ -260,7 +261,15 @@ class MainWindow(QMainWindow):
         self.choseMessage.setText(self.turnMessage)
 
         if ('王' in makeMap.deck1p) or ('王' in makeMap.deck2p):
-            print('1234')
+
+            if self.turn == 1:
+                message = '{0} player WIN'.format(2)
+            else:
+                message = '{0} player WIN'.format(1)
+            self.resultMessage.setText(message)
+        print(end)
+        if (end):
+            print('qwertyyiuiuiuui')
             if self.turn == 1:
                 message = '{0} player WIN'.format(2)
             else:
@@ -294,6 +303,7 @@ class MainWindow(QMainWindow):
             self.message = key
             print(self.message)
             self.stateMessage.setText(self.message)
+            self.slave = 1
 
     def put2pPiece(self):
         if self.turn == 2:
@@ -302,6 +312,7 @@ class MainWindow(QMainWindow):
             self.message = key
             print(self.message)
             self.stateMessage.setText(self.message)
+            self.slave = 2
 
     def mapClickMethod(self):
         print(self.turn)
@@ -314,44 +325,56 @@ class MainWindow(QMainWindow):
             key = button.text()
             self.message = key
             self.stateMessage.setText(self.message)
+            self.slave = 0
         else:
             self.location = [int(button.objectName()[0]), int(button.objectName()[1])]
 
-            if len(self.message) != 1:
+            if self.slave == 1 and self.location[1] == 3:
+                pass
+            elif self.slave == 2 and self.location[1] == 0:
+                pass
+
+            elif len(self.message) != 1:
                 if '子' in self.message:
                     tmp = move.soldier(self.currentPosition, self.location, self.turn)
                     if not(tmp):
                         self.turn += 1
                         self.message = ''
-                        self.reMake()
+                        self.reMake(False)
 
                 elif '將' in self.message :
                     tmp = move.firstGeneral(self.currentPosition, self.location, self.turn)
                     if not(tmp):
                         self.turn += 1
                         self.message = ''
-                        self.reMake()
+                        self.reMake(False)
 
                 elif '王' in self.message :
                     tmp = move.King(self.currentPosition, self.location, self.turn)
                     if not(tmp):
                         self.turn += 1
                         self.message = ''
-                        self.reMake()
+                        print(self.turn)
+                        if self.location[1] == 0 and self.turn == 3:
+                            self.reMake(True)
+                        elif self.location[1] == 3 and self.turn == 2:
+                            self.reMake(True)
+                        else:
+                            self.reMake(False)
 
                 elif '相' in self.message :
                     tmp = move.secGeneral(self.currentPosition, self.location, self.turn)
                     if not(tmp):
                         self.turn += 1
                         self.message = ''
-                        self.reMake()
+                        self.reMake(False)
 
                 elif '侯' in self.message:
                     tmp = move.thrGeneral(self.currentPosition, self.location, self.turn)
                     if not(tmp):
                         self.turn += 1
                         self.message = ''
-                        self.reMake()
+                        self.reMake(False)
             else:
                 if makeMap.gameMap[int(button.objectName()[0])][int(button.objectName()[1])] == ' ':
                     makeMap.gameMap[int(button.objectName()[0])][int(button.objectName()[1])] = self.message + str(self.turn)
@@ -376,7 +399,8 @@ class MainWindow(QMainWindow):
                     self.k_StealButton.setText('')
                     self.l_StealButton.setText('')
 
-                    self.reMake()
+                    self.slave = 0
+                    self.reMake(False)
 
 
     def clickedReGame(self):
@@ -384,7 +408,7 @@ class MainWindow(QMainWindow):
         makeMap.deck1p = []
         makeMap.deck2p = []
         self.turn = 1
-        self.reMake()
+        self.reMake(False)
 
         self.a_StealButton.setText('')
         self.b_StealButton.setText('')
@@ -399,6 +423,7 @@ class MainWindow(QMainWindow):
         self.k_StealButton.setText('')
         self.l_StealButton.setText('')
         self.stateMessage.setText('')
+        self.resultMessage.setText("' 'P WIN")
 
 
 if __name__ == "__main__":
